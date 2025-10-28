@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TeamWellness - Jugador</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+
+/* Login */
+.login-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 1000; }
+.login-screen.hidden { display: none; }
+.login-box { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 90%; max-width: 450px; text-align: center; }
+.login-box h1 { color: #667eea; font-size: 2.5em; margin-bottom: 10px; }
+.login-box .subtitle { color: #6b7280; margin-bottom: 30px; font-size: 1.1em; }
+.form-group { margin: 20px 0; text-align: left; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #374151; }
+.form-select, .form-input { width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1.1em; }
+.form-select:focus, .form-input:focus { outline: none; border-color: #667eea; }
+.btn-login { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; }
+.btn-login:hover { transform: translateY(-2px); }
+.error-message { color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 8px; margin-top: 15px; display: none; }
+.error-message.show { display: block; }
+
+/* App */
+.app-screen { display: none; }
+.app-screen.show { display: block; }
+.player-header { background: white; padding: 15px 20px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.player-name { font-size: 1.3em; font-weight: bold; color: #667eea; }
+.player-number { background: #667eea; color: white; padding: 5px 12px; border-radius: 8px; font-weight: bold; margin-left: 10px; }
+.btn-logout { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+.time-box { background: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+.current-time { font-size: 2em; font-weight: bold; color: #667eea; }
+.deadline-info { margin-top: 5px; color: #6b7280; }
+.time-box.warning { background: #fef3c7; border: 2px solid #fbbf24; }
+.time-box.danger { background: #fee2e2; border: 2px solid #ef4444; }
+
+.container { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 600px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 30px; }
+.header h2 { color: #667eea; font-size: 2em; margin-bottom: 10px; }
+.date-badge { background: #667eea; color: white; padding: 10px 20px; border-radius: 10px; display: inline-block; font-weight: 600; margin-top: 10px; }
+
+.form-section { margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 15px; border-left: 4px solid #667eea; }
+.form-section h3 { color: #374151; margin-bottom: 15px; font-size: 1.1em; }
+.helper-text { color: #6b7280; font-size: 0.9em; margin-bottom: 10px; }
+
+.slider { width: 100%; height: 8px; border-radius: 5px; outline: none; -webkit-appearance: none; background: linear-gradient(to right, #ef4444 0%, #fbbf24 50%, #10b981 100%); }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 25px; height: 25px; border-radius: 50%; background: #667eea; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+.slider-value { text-align: center; font-size: 2em; font-weight: bold; color: #667eea; margin-top: 10px; }
+.slider-emoji { text-align: center; font-size: 3em; }
+
+.pain-toggle { display: flex; align-items: center; gap: 15px; margin: 15px 0; }
+.switch { position: relative; width: 60px; height: 34px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+.switch-slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .switch-slider { background-color: #667eea; }
+input:checked + .switch-slider:before { transform: translateX(26px); }
+
+.pain-section { display: none; margin-top: 20px; }
+.pain-section.show { display: block; }
+
+.body-map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+.body-part { padding: 15px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; font-size: 0.9em; }
+.body-part .part-icon { font-size: 2em; display: block; margin-bottom: 5px; }
+.body-part:hover { border-color: #667eea; transform: translateY(-2px); }
+.body-part.selected { background: #667eea; color: white; border-color: #667eea; }
+
+.pain-zone-item { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid #fbbf24; }
+.pain-zone-item.severe { border-left-color: #ef4444; }
+.pain-zone-item.mild { border-left-color: #10b981; }
+.pain-zone-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.remove-zone { background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+
+.number-input { width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1.2em; text-align: center; }
+.number-input:focus { outline: none; border-color: #667eea; }
+
+.radio-group { display: flex; gap: 15px; margin: 15px 0; flex-wrap: wrap; }
+.radio-option { flex: 1; min-width: 120px; }
+.radio-option input[type="radio"] { display: none; }
+.radio-option label { display: block; padding: 15px; background: white; border: 2px solid #e5e7eb; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; }
+.radio-option input[type="radio"]:checked + label { background: #667eea; color: white; border-color: #667eea; }
+
+.textarea { width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1em; font-family: inherit; resize: vertical; min-height: 80px; }
+.textarea:focus { outline: none; border-color: #667eea; }
+
+.submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 15px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 30px; }
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+
+.success-screen { display: none; text-align: center; padding: 40px; }
+.success-screen.show { display: block; }
+.success-screen h2 { color: #10b981; margin-bottom: 15px; }
+
+@media (max-width: 768px) {
+    .body-map { grid-template-columns: repeat(2, 1fr); }
+    .radio-option { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-box">
+        <h1>💪 TeamWellness</h1>
+        <p class="subtitle">Acceso de Jugador</p>
+        
+        <div class="form-group">
+            <label>Código del Equipo</label>
+            <input type="text" id="teamCode" class="form-input" placeholder="TWEL-2025-XXXX">
+        </div>
+        
+        <div id="playerSelectSection" style="display:none;">
+            <div class="form-group">
+                <label>Selecciona tu nombre</label>
+                <select id="playerSelect" class="form-select">
+                    <option value="">-- Elige tu nombre --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Tu PIN (4 dígitos)</label>
+                <input type="password" id="playerPin" class="form-input" maxlength="4" placeholder="••••">
+            </div>
+            
+            <button class="btn-login" onclick="handleLogin()">🔓 Acceder</button>
+        </div>
+        
+        <button id="btnLoadTeam" class="btn-login" onclick="loadTeam()">Siguiente →</button>
+        
+        <div class="error-message" id="loginError"></div>
+        
+        <p style="margin-top:20px; font-size:0.9em; color:#6b7280;">
+            Código de demo: TWEL-2025-DEMO
+        </p>
+    </div>
+</div>
+
+<!-- App Screen -->
+<div class="app-screen" id="appScreen">
+    <div class="player-header">
+        <div>
+            <span class="player-name" id="playerNameDisplay"></span>
+            <span class="player-number" id="playerNumberDisplay"></span>
+        </div>
+        <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+
+    <div class="time-box" id="timeBox">
+        <div class="current-time" id="currentTime"></div>
+        <div class="deadline-info" id="deadlineInfo"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h2>Check-in Diario</h2>
+            <div class="date-badge" id="dateDisplay"></div>
+        </div>
+
+        <form id="checkInForm">
+            <!-- Estado Físico -->
+            <div class="form-section">
+                <h3>🏃 Estado Físico General</h3>
+                <p class="helper-text">¿Cómo te sientes hoy?</p>
+                <input type="range" min="1" max="10" value="7" class="slider" id="physicalState">
+                <div class="slider-value" id="physicalValue">7/10</div>
+                <div class="slider-emoji" id="physicalEmoji">🙂</div>
+            </div>
+
+            <!-- Zonas de Dolor -->
+            <div class="form-section">
+                <h3>💪 Zonas de Dolor/Molestias</h3>
+                <div class="pain-toggle">
+                    <span style="font-weight: 600;">¿Tienes dolor?</span>
+                    <label class="switch">
+                        <input type="checkbox" id="hasPain">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="pain-section" id="painSection">
+                    <div class="body-map" id="bodyMap">
+                        <div class="body-part" data-part="cabeza"><span class="part-icon">🧠</span>Cabeza</div>
+                        <div class="body-part" data-part="cuello"><span class="part-icon">👔</span>Cuello</div>
+                        <div class="body-part" data-part="hombro-der"><span class="part-icon">💪</span>Hombro Der.</div>
+                        <div class="body-part" data-part="hombro-izq"><span class="part-icon">💪</span>Hombro Izq.</div>
+                        <div class="body-part" data-part="pecho"><span class="part-icon">🫁</span>Pecho</div>
+                        <div class="body-part" data-part="espalda"><span class="part-icon">🫀</span>Espalda</div>
+                        <div class="body-part" data-part="muslo-der"><span class="part-icon">🦵</span>Muslo Der.</div>
+                        <div class="body-part" data-part="muslo-izq"><span class="part-icon">🦵</span>Muslo Izq.</div>
+                        <div class="body-part" data-part="rodilla-der"><span class="part-icon">🦵</span>Rodilla Der.</div>
+                        <div class="body-part" data-part="rodilla-izq"><span class="part-icon">🦵</span>Rodilla Izq.</div>
+                        <div class="body-part" data-part="tobillo-der"><span class="part-icon">🦶</span>Tobillo Der.</div>
+                        <div class="body-part" data-part="tobillo-izq"><span class="part-icon">🦶</span>Tobillo Izq.</div>
+                    </div>
+                    <div id="painZones"></div>
+                </div>
+            </div>
+
+            <!-- Estado Mental -->
+            <div class="form-section">
+                <h3>😊 Estado Mental</h3>
+                <p class="helper-text">¿Cómo está tu ánimo?</p>
+                <input type="range" min="1" max="10" value="7" class="slider" id="mentalState">
+                <div class="slider-value" id="mentalValue">7/10</div>
+                <div class="slider-emoji" id="mentalEmoji">🙂</div>
+            </div>
+
+            <!-- Fatiga -->
+            <div class="form-section">
+                <h3>⚡ Nivel de Fatiga</h3>
+                <p class="helper-text">¿Nivel de energía?</p>
+                <input type="range" min="1" max="10" value="7" class="slider" id="fatigueLevel">
+                <div class="slider-value" id="fatigueValue">7/10</div>
+                <div class="slider-emoji" id="fatigueEmoji">🙂</div>
+            </div>
+
+            <!-- Sueño -->
+            <div class="form-section">
+                <h3>💤 Horas de Sueño</h3>
+                <p class="helper-text">¿Cuántas horas dormiste?</p>
+                <input type="number" min="0" max="14" step="0.5" value="7" class="number-input" id="sleepHours">
+            </div>
+
+            <!-- Hidratación -->
+            <div class="form-section">
+                <h3>💧 Hidratación</h3>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="hydra-good" name="hydration" value="good" checked>
+                        <label for="hydra-good">💧 Bien</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="hydra-reg" name="hydration" value="regular">
+                        <label for="hydra-reg">💧 Regular</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="hydra-bad" name="hydration" value="bad">
+                        <label for="hydra-bad">💧 Mal</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comentarios -->
+            <div class="form-section">
+                <h3>💬 Comentarios</h3>
+                <textarea class="textarea" id="comments" placeholder="Algo más que comentar..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">✅ ENVIAR CHECK-IN</button>
+        </form>
+
+        <div class="success-screen" id="successScreen">
+            <h2>✅ Check-in Completado</h2>
+            <p>Registrado a las <span id="submitTimeDisplay"></span></p>
+            <p style="margin-top:15px; color:#6b7280;">¡Gracias! Cuídate y entrena bien 💪</p>
+        </div>
+    </div>
+</div>
+
+<script src="js/data.js"></script>
+<script>
+let currentTeamId = null;
+let currentPlayer = null;
+let painZones = {};
+const emojis = {1:'😱',2:'😩',3:'😫',4:'😕',5:'😐',6:'🙂',7:'😊',8:'😄',9:'😁',10:'🤩'};
+
+// Check session
+window.onload = function() {
+    const session = new SessionManager().get();
+    if (session && session.type === 'player') {
+        currentTeamId = session.teamId;
+        currentPlayer = new PlayerManager(currentTeamId).getById(session.userId);
+        if (currentPlayer) {
+            showApp();
+        }
+    }
+};
+
+// Load Team
+function loadTeam() {
+    const teamCode = document.getElementById('teamCode').value.trim();
+    if (!teamCode) {
+        showError('Ingresa el código del equipo');
+        return;
+    }
+
+    const teamManager = new TeamManager();
+    const team = teamManager.getAllTeams().find(t => t.licenseCode === teamCode);
+    
+    if (!team) {
+        showError('Código de equipo no válido');
+        return;
+    }
+
+    currentTeamId = team.teamId;
+    
+    // Load players
+    const playerManager = new PlayerManager(currentTeamId);
+    const players = playerManager.getActive();
+    
+    if (players.length === 0) {
+        showError('Este equipo aún no tiene jugadores registrados');
+        return;
+    }
+
+    const select = document.getElementById('playerSelect');
+    select.innerHTML = '<option value="">-- Elige tu nombre --</option>';
+    players.forEach(player => {
+        const option = document.createElement('option');
+        option.value = player.id;
+        option.textContent = `${player.name} (#${player.number})`;
+        select.appendChild(option);
+    });
+
+    document.getElementById('btnLoadTeam').style.display = 'none';
+    document.getElementById('playerSelectSection').style.display = 'block';
+}
+
+// Handle Login
+function handleLogin() {
+    const playerId = document.getElementById('playerSelect').value;
+    const pin = document.getElementById('playerPin').value;
+
+    if (!playerId || !pin) {
+        showError('Selecciona tu nombre e ingresa tu PIN');
+        return;
+    }
+
+    const playerManager = new PlayerManager(currentTeamId);
+    const player = playerManager.getById(playerId);
+
+    if (player.pin !== pin) {
+        showError('PIN incorrecto');
+        return;
+    }
+
+    currentPlayer = player;
+    new SessionManager().create('player', currentTeamId, playerId, player.name);
+    showApp();
+}
+
+// Show App
+function showApp() {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appScreen').classList.add('show');
+    
+    document.getElementById('playerNameDisplay').textContent = currentPlayer.name;
+    document.getElementById('playerNumberDisplay').textContent = '#' + currentPlayer.number;
+    
+    const today = new Date().toLocaleDateString('es-ES', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    document.getElementById('dateDisplay').textContent = today.charAt(0).toUpperCase() + today.slice(1);
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+    checkTodayCheckIn();
+    setupForm();
+}
+
+// Update Time
+function updateTime() {
+    const now = new Date();
+    document.getElementById('currentTime').textContent = now.toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    
+    const team = new TeamManager().getTeam(currentTeamId);
+    const deadline = new Date();
+    deadline.setHours(team.settings.deadlineHour, team.settings.deadlineMinutes, 0, 0);
+    const diff = deadline - now;
+    const timeBox = document.getElementById('timeBox');
+    
+    if (diff > 0) {
+        const hours = Math.floor(diff / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        let text = `Límite: ${team.settings.deadlineHour}:${team.settings.deadlineMinutes.toString().padStart(2,'0')}h`;
+        
+        if (hours > 2) {
+            text += ` (Quedan ${hours}h ${mins}min)`;
+            timeBox.className = 'time-box';
+        } else if (hours > 0 || mins > 30) {
+            text += ` ⚠️ ${hours}h ${mins}min`;
+            timeBox.className = 'time-box warning';
+        } else {
+            text += ` 🚨 ¡${mins}min!`;
+            timeBox.className = 'time-box danger';
+        }
+        document.getElementById('deadlineInfo').textContent = text;
+    } else {
+        document.getElementById('deadlineInfo').textContent = `⏰ Límite superado`;
+        timeBox.className = 'time-box danger';
+    }
+}
+
+// Check Today CheckIn
+function checkTodayCheckIn() {
+    const checkInManager = new CheckInManager(currentTeamId);
+    if (checkInManager.hasCompletedToday(currentPlayer.id)) {
+        const lastCheckIn = checkInManager.getLastByPlayer(currentPlayer.id);
+        document.getElementById('checkInForm').style.display = 'none';
+        document.getElementById('successScreen').classList.add('show');
+        document.getElementById('submitTimeDisplay').textContent = lastCheckIn.submitTime;
+    }
+}
+
+// Setup Form
+function setupForm() {
+    // Sliders
+    ['physical', 'mental', 'fatigue'].forEach(type => {
+        const slider = document.getElementById(type + 'State');
+        if (!slider) return;
+        slider.addEventListener('input', function() {
+            document.getElementById(type + 'Value').textContent = this.value + '/10';
+            document.getElementById(type + 'Emoji').textContent = emojis[this.value];
+        });
+    });
+
+    // Pain toggle
+    document.getElementById('hasPain').addEventListener('change', function() {
+        document.getElementById('painSection').classList.toggle('show', this.checked);
+        if (!this.checked) {
+            painZones = {};
+            document.getElementById('painZones').innerHTML = '';
+            document.querySelectorAll('.body-part').forEach(p => p.classList.remove('selected'));
+        }
+    });
+
+    // Body parts
+    document.querySelectorAll('.body-part').forEach(part => {
+        part.addEventListener('click', function() {
+            const id = this.dataset.part;
+            const label = this.textContent.trim();
+            if (this.classList.contains('selected')) {
+                this.classList.remove('selected');
+                delete painZones[id];
+            } else {
+                this.classList.add('selected');
+                painZones[id] = {label, intensity: 5};
+            }
+            renderPainZones();
+        });
+    });
+
+    // Submit
+    document.getElementById('checkInForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const data = {
+            physicalState: parseInt(document.getElementById('physicalState').value),
+            hasPain: document.getElementById('hasPain').checked,
+            painZones: painZones,
+            mentalState: parseInt(document.getElementById('mentalState').value),
+            fatigueLevel: parseInt(document.getElementById('fatigueLevel').value),
+            sleepHours: parseFloat(document.getElementById('sleepHours').value),
+            hydration: document.querySelector('input[name="hydration"]:checked').value,
+            comments: document.getElementById('comments').value
+        };
+        
+        const checkInManager = new CheckInManager(currentTeamId);
+        checkInManager.add(currentPlayer.id, currentPlayer.name, currentPlayer.number, data);
+        
+        document.getElementById('checkInForm').style.display = 'none';
+        document.getElementById('successScreen').classList.add('show');
+        document.getElementById('submitTimeDisplay').textContent = new Date().toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'});
+    });
+}
+
+// Render Pain Zones
+function renderPainZones() {
+    const container = document.getElementById('painZones');
+    container.innerHTML = '';
+    Object.keys(painZones).forEach(id => {
+        const zone = painZones[id];
+        const severity = zone.intensity <= 3 ? 'mild' : zone.intensity <= 6 ? '' : 'severe';
+        const div = document.createElement('div');
+        div.className = `pain-zone-item ${severity}`;
+        div.innerHTML = `
+            <div class="pain-zone-header">
+                <span>${zone.label}</span>
+                <button type="button" class="remove-zone" onclick="removeZone('${id}')">✕</button>
+            </div>
+            <input type="range" min="1" max="10" value="${zone.intensity}" class="slider" onchange="updateZone('${id}', this.value)">
+            <div style="text-align:center; margin-top:10px; font-weight:600; color:#667eea;">${zone.intensity}/10</div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function updateZone(id, value) {
+    painZones[id].intensity = parseInt(value);
+    renderPainZones();
+}
+
+function removeZone(id) {
+    delete painZones[id];
+    document.querySelector(`.body-part[data-part="${id}"]`).classList.remove('selected');
+    renderPainZones();
+}
+
+function showError(message) {
+    const el = document.getElementById('loginError');
+    el.textContent = message;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function logout() {
+    if (confirm('¿Cerrar sesión?')) {
+        new SessionManager().clear();
+        location.reload();
+    }
+}
+</script>
+</body>
+</html>

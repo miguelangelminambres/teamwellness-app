@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeamWellness - Sistema de Wellness Deportivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        .role-selection {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .role-card {
+            background: #f9fafb;
+            border: 3px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .role-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .role-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .role-description {
+            font-size: 0.9em;
+            color: #6b7280;
+        }
+
+        .features {
+            background: #eff6ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 40px;
+            border: 2px solid #dbeafe;
+        }
+
+        .features h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .feature-list {
+            text-align: left;
+            color: #1e3a8a;
+        }
+
+        .feature-list li {
+            margin-bottom: 8px;
+            list-style: none;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .role-selection {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                font-size: 3.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">💪</div>
+        <h1>TeamWellness</h1>
+        <p class="subtitle">Sistema de Control de Wellness Deportivo</p>
+
+        <div class="role-selection">
+            <a href="entrenador.html" class="role-card">
+                <div class="role-icon">👨‍💼</div>
+                <div class="role-title">Entrenador</div>
+                <div class="role-description">
+                    Gestiona tu equipo, ve el estado de todos los jugadores y genera reportes
+                </div>
+            </a>
+
+            <a href="jugador.html" class="role-card">
+                <div class="role-icon">👤</div>
+                <div class="role-title">Jugador</div>
+                <div class="role-description">
+                    Completa tu check-in diario y registra tu estado físico y mental
+                </div>
+            </a>
+        </div>
+
+        <div class="features">
+            <h3>🎯 Características Principales</h3>
+            <ul class="feature-list">
+                <li>Control diario del estado físico y mental</li>
+                <li>Mapa corporal de zonas de dolor</li>
+                <li>Dashboard en tiempo real para entrenadores</li>
+                <li>Alertas automáticas de lesiones</li>
+                <li>Estadísticas y tendencias del equipo</li>
+                <li>Sistema de hora límite configurable</li>
+                <li>100% privado y seguro</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
